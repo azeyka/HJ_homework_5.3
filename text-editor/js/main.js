@@ -13,22 +13,32 @@ class TextEditor {
     this.filenameContainer = container.querySelector( '.text-editor__filename' );
     this.storageKey = storageKey;
     this.registerEvents();
-    this.load( this.getStorageData());
+    this.load( this.getStorageData() );
   }
   registerEvents() {
     const save = throttle( this.save.bind( this ), 1000 );
     this.contentContainer.addEventListener( 'input', save );
   }
   loadFile( e ) {
+    this.contentContainer.value = e.target.result;
   }
   readFile( file ) {
+    if ( file.type === 'text/plain' ) {
+      const reader = new FileReader();
+      reader.addEventListener( 'load', event => this.loadFile( event ) );
+      reader.readAsText( file );
+    } else {
+      this.contentContainer.value = 'Недопустимый формат файла!'
+    }
   }
   setFilename( filename ) {
     this.filenameContainer.textContent = filename;
   }
   showHint( e ) {
+    this.hintContainer.classList.add( 'text-editor__hint_visible' );
   }
   hideHint() {
+    this.hintContainer.classList.remove( 'text-editor__hint_visible' );
   }
   load( value ) {
     this.contentContainer.value = value || '';
@@ -39,6 +49,19 @@ class TextEditor {
   save() {
     localStorage[ this.storageKey ] = this.contentContainer.value;
   }
-}
+};
 
-new TextEditor( document.getElementById( 'editor' ));
+const editor = new TextEditor( document.getElementById( 'editor' ));
+
+document.addEventListener( 'dragover', event => {
+  event.preventDefault();
+  editor.showHint();
+});
+
+document.addEventListener( 'drop', event => {
+  event.preventDefault();
+  editor.hideHint()
+  const file = event.dataTransfer.files[ 0 ]
+  editor.setFilename( file.name );
+  editor.readFile( file );  
+});
