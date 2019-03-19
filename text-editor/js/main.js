@@ -64,7 +64,7 @@ class TextEditor {
   }
 };
 
-const editor = new TextEditor( document.getElementById( 'editor' ));
+new TextEditor( document.getElementById( 'editor' ));
 
 
 
