@@ -14,6 +14,19 @@ class TextEditor {
     this.storageKey = storageKey;
     this.registerEvents();
     this.load( this.getStorageData() );
+    
+    document.addEventListener( 'dragover', event => {
+      event.preventDefault();
+      this.showHint();
+    });
+    
+    document.addEventListener( 'drop', event => {
+      event.preventDefault();
+      this.hideHint()
+      const file = event.dataTransfer.files[ 0 ]
+      this.setFilename( file.name );
+      this.readFile( file );  
+    });
   }
   registerEvents() {
     const save = throttle( this.save.bind( this ), 1000 );
@@ -53,15 +66,5 @@ class TextEditor {
 
 const editor = new TextEditor( document.getElementById( 'editor' ));
 
-document.addEventListener( 'dragover', event => {
-  event.preventDefault();
-  editor.showHint();
-});
 
-document.addEventListener( 'drop', event => {
-  event.preventDefault();
-  editor.hideHint()
-  const file = event.dataTransfer.files[ 0 ]
-  editor.setFilename( file.name );
-  editor.readFile( file );  
-});
+
